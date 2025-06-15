@@ -1,13 +1,18 @@
 package com.mysite.sbb.question;
+import com.mysite.sbb.answer.AnswerForm;
 
 import java.util.List;
 
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RequestMapping("/question") // URL 프리픽스.
@@ -30,11 +35,31 @@ public class QuestionController {
     }
 
     @GetMapping("/detail/{id}")
-    public String detail(Model model, @PathVariable("id") Integer id){
+    public String detail(Model model, @PathVariable("id") Integer id, AnswerForm answerForm){
         // 변하는 값을 얻을 때 이 애너테이션을 이용한다.
         Question question = this.questionService.getQuestion(id);
         model.addAttribute("question", question);
         return "question_detail";
     }
 
+    // 메서드 오버로딩 : 매개변수의 형태가 다른 경우 한 클래스에서 동일한 메서드명을 사용할 수 있음.
+    @GetMapping("/create")
+    public String questionCreate(QuestionForm questionForm){ // th:object 속성을 위해 QuestionForm 객체 전달
+        return "question_form";
+    }
+
+    @PostMapping("/create")
+//    public String questionCreate(@RequestParam(value="subject") String subject, @RequestParam(value="content") String content){
+    public String questionCreate(@Valid QuestionForm questionForm, BindingResult bindingResult){
+        // QuestionForm 사용을 위해 매개변수를 QuestionForm 객체로 변경하였음.
+        // 이름이 같으면 연결되는 폼 바인딩 기능을 활용함
+        // @Valid 애너테이션이 있어야 QuestionForm의 @NotEmpty, @Size가 동작함
+        // BindingResult 매개변수는 항상 @Valid 매개변수 바로 뒤에 위치해야 함.
+        if(bindingResult.hasErrors()){
+            return "question_form";
+        }
+//        this.questionService.create(subject, content);
+        this.questionService.create(questionForm.getSubject(), questionForm.getContent());
+        return "redirect:/question/list";
+    }
 }
