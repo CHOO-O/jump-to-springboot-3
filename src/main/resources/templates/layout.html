@@ -8,9 +8,13 @@
     <link rel="stylesheet" type="text/css" th:href="@{/bootstrap.min.css}">
     <title>Hello, sbb!</title>
 </head>
+<!-- Bootstrap js -->
+<script th:src="@{/bootstrap.min.js}"></script>
 <body>
-<!--    start    -->
+    <!-- navBar -->
+    <nav th:replace="~{navbar :: navbarFragment}"></nav>
+    <!--    start    -->
     <th:block layout:fragment="content"></th:block>
-<!--    end-->
+    <!--    end-->
 </body>
 </html>

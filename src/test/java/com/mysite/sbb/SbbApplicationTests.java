@@ -1,7 +1,11 @@
 package com.mysite.sbb;
 
+import com.mysite.sbb.answer.AnswerService;
+import com.mysite.sbb.question.QuestionService;
+
 import java.util.List;
 import java.util.Optional;
+import java.time.LocalDateTime;
 
 import com.mysite.sbb.answer.Answer;
 import com.mysite.sbb.answer.AnswerRepository;
@@ -20,15 +24,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class SbbApplicationTests {
 
 	@Autowired // 의존성 주입 -> QuestionRepository의 객체를 주입함.
-	private QuestionRepository questionRepository;
+//	private AnswerRepository answerRepository;
+//    private AnswerService questionService;
+    private QuestionService questionService;
 
-	@Autowired
-	private AnswerRepository answerRepository;
 
-	@Transactional
+//    @Transactional
 	@Test
 	void testJpa(){
-		// 1.
+//		 1.
 //		Question q1 = new Question();
 //		q1.setSubject("sbb가 무엇인가요?");
 //		q1.setContent("sbb에 대해 알고 싶습니다.");
@@ -108,16 +112,23 @@ class SbbApplicationTests {
 //		Answer a = oa.get();
 //		assertEquals(2, a.getQuestion().getId());
 
-		// 11.
-		Optional<Question> oq = this.questionRepository.findById(2);
-		assertTrue(oq.isPresent());
-		Question q = oq.get();
-		// 이대로 실행하면 DB 세션이 findById를 수행한 뒤 끊겨 아래 코드는 오류가 발생한다.
-		// 따라서 @Transactional 애너테이션을 넣어줘야 한다.
+//		// 11.
+//		Optional<Question> oq = this.questionRepository.findById(2);
+//		assertTrue(oq.isPresent());
+//		Question q = oq.get();
+//		// 이대로 실행하면 DB 세션이 findById를 수행한 뒤 끊겨 아래 코드는 오류가 발생한다.
+//		// 따라서 @Transactional 애너테이션을 넣어줘야 한다.
+//
+//		List<Answer> answerList = q.getAnswerList();
+//
+//		assertEquals(1, answerList.size());
+//		assertEquals("네 자동으로 생성됩니다.", answerList.get(0).getContent());
 
-		List<Answer> answerList = q.getAnswerList();
-
-		assertEquals(1, answerList.size());
-		assertEquals("네 자동으로 생성됩니다.", answerList.get(0).getContent());
+        // insert paging test data
+        for(int i = 0; i < 300; i++){
+            String subject = String.format("테스트 데이터입니다:[%03d]", i);
+            String content = "내용 없음 ";
+            this.questionService.create(subject, content);
+        }
 	}
 }
