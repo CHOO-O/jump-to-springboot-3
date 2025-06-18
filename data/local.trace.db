@@ -1,3 +1,0 @@
-2025-06-16 16:08:52.742210+09:00 jdbc[13]: exception
-org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "SELECT * FROM QUESTION ANSWER [*]QUESTION"; SQL statement:
-SELECT * FROM QUESTION ANSWER QUESTION [42000-232]
