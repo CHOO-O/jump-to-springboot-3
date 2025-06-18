@@ -1,8 +1,11 @@
 package com.mysite.sbb.answer;
 
+import com.mysite.sbb.question.Question;
+import com.mysite.sbb.user.SiteUser;
+
 import java.time.LocalDateTime;
 
-import com.mysite.sbb.question.Question;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -31,4 +34,8 @@ public class Answer {
     @ManyToOne // 하나의 질문에 여러 답변이 달릴 수 있으므로. 부모(Question)-자식(Answer)
     private Question question; // qustion속성 참조하기 위해 추가
 
+    @ManyToOne // 사용자 한명이 여러 질문 등록 가능
+    private SiteUser author;
+
+    private LocalDateTime modifyDate;
 }

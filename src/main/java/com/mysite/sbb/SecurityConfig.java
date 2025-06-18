@@ -11,6 +11,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 
 // *AntPathRequestMatcher는 spring security 6.1부터 deprecated되었다
 // 당장 오류가 발생하는 것이 아니며, 경고 알람이 뜰 순 있음.
@@ -18,6 +19,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 
 @Configuration // 이 파일이 스프링의 환경 설정 파일임을 의미함
 @EnableWebSecurity // 모든 요청 URL이 스프링 시큐리티의 제어를 받게 함 = 스프링 시큐리티를 활성화
+@EnableMethodSecurity(prePostEnabled = true) // PreAuthorize 애너테이션에 필요한 설정
 public class SecurityConfig {
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
