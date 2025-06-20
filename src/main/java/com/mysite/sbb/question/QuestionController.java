@@ -33,15 +33,13 @@ public class QuestionController {
     private final UserService userService;
 
     @GetMapping("/list")
-    public String list(Model model, @RequestParam(value="page", defaultValue="0") int page){
+    public String list(Model model, @RequestParam(value="page", defaultValue="0") int page, @RequestParam(value="kw", defaultValue = "") String kw){
         // GET 방식으로 /list?page=0 과 같이 URL요청 받을거임. 참고로 첫페이지는 1이 아닌 0이다.
-//        List<Question> questionList = this.questionRepository.findAll();
-//        List<Question> questionList = this.questionService.getList();
-        Page<Question> paging = this.questionService.getList(page);
-//        model.addAttribute("questionList", questionList);
+        Page<Question> paging = this.questionService.getList(page, kw);
         model.addAttribute("paging", paging);
         // Model 객체는 템플릿과 자바 클래스 간 연결고리 역할, 여기에 값을 담으면 템플릿이 그 값을 사용할 수 있음.
         // 따로 객체 생성할 필요 없이 메서드에 매개변수로 지정하면 스프링부트가 자동으로 객체 생성함.
+        model.addAttribute("kw", kw);
         return "question_list"; // 템플릿파일명
     }
 

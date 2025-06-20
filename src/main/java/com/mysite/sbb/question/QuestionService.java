@@ -11,9 +11,17 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import org.springframework.data.jpa.domain.Specification;
 
 import com.mysite.sbb.DataNotFoundException;
 import com.mysite.sbb.user.SiteUser;
+import com.mysite.sbb.answer.Answer;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,15 +31,34 @@ import lombok.RequiredArgsConstructor;
 public class QuestionService {
     private final QuestionRepository questionRepository;
 
-//    public List<Question> getList(){
-//        return this.questionRepository.findAll();
-//    }
+    private Specification<Question> search(String kw){ // 검색어 kw 입력받아 쿼리의 join, where문을 Specification 객체로 생성하여 리턴
+        return new Specification<>() { // JPA의 Specification 인터페이스 -> 쿼리를 보다 정교하게 작성할 수 있게 하는 JPA 도구
+            private static final long serialVersionUID = 1L;
+            @Override
+            public Predicate toPredicate(Root<Question> q, CriteriaQuery<?> query, CriteriaBuilder cb){ // q = 기준이 되는 Question 객체
+                query.distinct(true);
+                Join<Question, SiteUser> u1 = q.join("author", JoinType.LEFT); // Question - SiteUser 아우터 조인해 만든 SiteUser 객체 (공통속성 author) => 질문 작성자 검색
+                Join<Question, Answer> a = q.join("answerList", JoinType.LEFT); // Question - Answer 아우터 조인 Answer 객체 (공통속성 answerList) => 답변 내용 검색
+                Join<Answer, SiteUser> u2 = a.join("author", JoinType.LEFT); // Answer - SiteUser 아우터 조인 SiteUser 객체 (공통속성 author) => 답변 작성자 검색
+                return cb.or(cb.like(q.get("subject"), "%" + kw + "%"), // kw를 포함하는지 => cb.like, cn.or로 여러 조건 OR검색
+                        cb.like(q.get("content"), "%" + kw + "%"),
+                        cb.like(u1.get("username"), "%" + kw + "%"),
+                        cb.like(a.get("content"), "%" + kw + "%"),
+                        cb.like(u2.get("username"), "%" + kw + "%"));
+            }
+        };
+    }
 
-    public Page<Question> getList(int page){ // 페이징을 위해 수정
+    public Page<Question> getList(int page, String kw){ // 페이징을 위해 수정
         List<Sort.Order> sorts = new ArrayList<>(); // 게시물 최신순(역순) 조회를 이해 Sort 객체 생성, 전달
         sorts.add(Sort.Order.desc("createDate"));
         Pageable pageable = PageRequest.of(page, 10, Sort.by(sorts));
-        return this.questionRepository.findAll(pageable);
+        Specification<Question> spec = search(kw);
+        return this.questionRepository.findAll(spec, pageable);
+
+        /* 보충 : Specification 대신 Query를 직접 작성하여 사용하는 방법
+        return this.questionRepository.findallByKeyword(kw, pageable);
+        */
     }
 
     public Question getQuestion(Integer id){
